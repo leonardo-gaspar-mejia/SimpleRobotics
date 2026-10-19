@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "SimpleRobotics"
+version = "1.0.5.1"
+description = "This is a simple robotics toolbox designed to study and understand the forward kinematics of robot manipulators."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24",
+    "matplotlib>=3.5",
+    "sympy>=1.12",
+    "trimesh>=3.9",
+]
+
+[project.optional-dependencies]
+symbolic = ["sympy>=1.12"]
+dev = ["pytest>=8.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
