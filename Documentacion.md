@@ -1,7 +1,7 @@
 # Documentación de SimpleRobotics
 **Versión documentada:** 1.0.5.1
 
-**Toolbox MATLAB de referencia:** Dr. César A. Chávez-Olivares
+**Toolbox MATLAB de referencia:** Dr. César A. Chávez Olivares 
 
 **Traducción y desarrollo en Python:** Ing. Leonardo Andrey Gaspar Mejía
 
@@ -10,7 +10,31 @@ SimpleRobotics es una biblioteca educativa diseñada para el estudio y análisis
 
 Esta flexibilidad en la organización geométrica facilita la descripción de cadenas seriales complejas y la visualización de diagramas cinemáticos generales. Además, ofrece herramientas para representar los elementos del robot mediante primitivas geométricas (líneas, cilindros, prismas), sistemas de coordenadas o mallas STL.
 
-El desarrollo de la versión en Python toma como base la toolbox de MATLAB creada por el Dr. César A. Chávez-Olivares. El objetivo principal es preservar su enfoque didáctico y convenciones de uso. Se recomienda verificar los resultados de cada función de manera aislada antes de asumir una equivalencia numérica completa con la versión original de MATLAB en casos complejos.
+El desarrollo de la versión en Python toma como base la toolbox Simple Robotics Toolbox 1.0.5v publicada el 11 de oct 2026 creada por el Dr. César A. Chávez-Olivares. El objetivo principal es preservar su enfoque didáctico y convenciones de uso. Se recomienda verificar los resultados de cada función de manera aislada antes de asumir una equivalencia numérica completa con la versión original de MATLAB en casos complejos.
+
+**Liga de referencia de la Toolbox original:** https://la.mathworks.com/matlabcentral/fileexchange/80137-simple-robotics-toolbox
+
+## 1.2. Contacto, consultas y reporte de errores
+
+Si tienes dudas sobre la instalación, el uso de SimpleRobotics o el comportamiento de alguna función, puedes ponerte en contacto con el responsable de la adaptación a Python mediante los siguientes correos electrónicos:
+
+- **Correo de contacto:** leogasmejob@gmail.com
+- **Correo alternativo:** gasmejleoand@gmail.com
+
+### Reporte de errores (*bugs*)
+
+Si encuentras un error, un comportamiento inesperado o una discrepancia entre los resultados de SimpleRobotics y los de la toolbox original de MATLAB, se recomienda incluir la siguiente información en el mensaje:
+
+- **Versión de SimpleRobotics** utilizada.
+- **Versión de Python** y sistema operativo.
+- **Función involucrada** y descripción breve del problema.
+- **Código mínimo para reproducir el error**, cuando sea posible.
+- **Resultado obtenido y resultado esperado**.
+- **Mensaje de error completo** o captura de pantalla, si corresponde.
+
+Esta información facilitará la identificación del problema y permitirá determinar si se trata de un error de implementación, una diferencia numérica o una cuestión relacionada con las convenciones de la toolbox original.
+
+Los reportes y sugerencias serán útiles para documentar limitaciones, mejorar los ejemplos y orientar futuras revisiones de la biblioteca.
 
 ---
 

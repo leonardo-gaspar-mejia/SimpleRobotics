@@ -14,3 +14,7 @@ dist/
 
 # Caché de Jupyter
 .ipynb_checkpoints/
+
+#Datos
+
+Datos.txt
