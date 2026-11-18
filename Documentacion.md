@@ -57,11 +57,11 @@ python -m pip install .
 
 Los comandos utilizan el intérprete asociado al ejecutable `python` de la terminal. Comprueba que VS Code o Jupyter utilicen ese mismo intérprete.
 
-### 2.2 Instalación desde PyPI (pendiente de publicación)
+### 2.2 Instalación desde PyPI 
 
-Pendiente de publicación. Esta sección se completará cuando la
-biblioteca esté disponible en PyPI y se confirme su nombre de
-distribución.
+```bash
+python pip install simplerobotics
+```
 
 ### 2.3 El proyecto declara las siguientes dependencias:
 

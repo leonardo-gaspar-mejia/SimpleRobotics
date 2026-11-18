@@ -29,6 +29,12 @@ La inclusión de ambos créditos reconoce la autoría de la toolbox de referenci
 
 ### Instalación
 
+Ejecuta en la terminal:
+
+```bash
+python pip install simplerobotics
+```
+
 Desde la carpeta raíz del proyecto, donde se encuentra `pyproject.toml`:
 
 ```bash
@@ -102,6 +108,12 @@ These credits distinguish the authorship of the reference toolbox from the work 
 - `RobotRR.py`: specific tools for constructing and visualizing the RR manipulator.
 
 ### Installation
+
+To install from PyPi, run in terminal:
+
+```bash
+python pip install simplerobotics
+```
 
 From the project root, where `pyproject.toml` is located, run:
 
