@@ -1,5 +1,5 @@
 # Documentación de SimpleRobotics
-**Versión documentada:** 1.0.5.1
+**Versión documentada:** 1.0.5.2
 
 **Toolbox MATLAB de referencia:** Dr. César A. Chávez Olivares 
 
@@ -10,6 +10,8 @@ SimpleRobotics es una biblioteca educativa diseñada para el estudio y análisis
 
 Esta flexibilidad en la organización geométrica facilita la descripción de cadenas seriales complejas y la visualización de diagramas cinemáticos generales. Además, ofrece herramientas para representar los elementos del robot mediante primitivas geométricas (líneas, cilindros, prismas), sistemas de coordenadas o mallas STL.
 
+La biblioteca también incorpora `RobotScene`, una herramienta para construir escenas tridimensionales con jerarquías de sistemas de referencia y mallas STL, actualizar las transformaciones de sus elementos y visualizar la escena de forma interactiva mediante PyVista. Esta funcionalidad permite representar cambios de configuración de un manipulador; la versión incluida no implementa un controlador temporal ni reproducción automática de trayectorias.
+
 El desarrollo de la versión en Python toma como base la toolbox Simple Robotics Toolbox 1.0.5v publicada el 11 de oct 2026 creada por el Dr. César A. Chávez-Olivares. El objetivo principal es preservar su enfoque didáctico y convenciones de uso. Se recomienda verificar los resultados de cada función de manera aislada antes de asumir una equivalencia numérica completa con la versión original de MATLAB en casos complejos.
 
 **Liga de referencia de la Toolbox original:** https://la.mathworks.com/matlabcentral/fileexchange/80137-simple-robotics-toolbox
@@ -19,7 +21,6 @@ El desarrollo de la versión en Python toma como base la toolbox Simple Robotics
 Si tienes dudas sobre la instalación, el uso de SimpleRobotics o el comportamiento de alguna función, puedes ponerte en contacto con el responsable de la adaptación a Python mediante los siguientes correos electrónicos:
 
 - **Correo de contacto:** leogasmejob@gmail.com
-- **Correo alternativo:** gasmejleoand@gmail.com
 
 ### Reporte de errores (*bugs*)
 
@@ -67,7 +68,8 @@ distribución.
 - **NumPy:** operaciones matriciales y cálculos numéricos.
 - **Matplotlib:** representación gráfica bidimensional y tridimensional.
 - **SymPy:** operaciones y expresiones simbólicas.
-- **trimesh:** lectura y manipulación de mallas STL.
+- **Trimesh:** lectura y manipulación de mallas STL y gestión del grafo de transformaciones de las escenas.
+- **PyVista:** representación interactiva de escenas tridimensionales y actualización de actores gráficos.
 
 ## 3. Estructura del Proyecto
 
@@ -75,17 +77,27 @@ El código fuente está estructurado de la siguiente manera:
 
 ```text
 SimpleRobotics/
-pyproject.toml
-setup.py
-README.md
-Documentacion.md
-src/
-SimpleRobotics/
-__init__.py
-transforms.py
-plotting.py
-formatting.py
+├── pyproject.toml
+├── setup.py
+├── README.md
+├── Documentacion.md
+├── src/
+│   └── SimpleRobotics/
+│       ├── __init__.py
+│       ├── transforms.py
+│       ├── plotting.py
+│       ├── formatting.py
+│       ├── animation.py
+│       └── RobotRR.py
+└── ejemplos/
+    └── STL_RR/
+        ├── Robot_2gdl_planar-Base.STL
+        ├── Robot_2gdl_planar-Eslabon1.STL
+        ├── Robot_2gdl_planar-Eslabon2.STL
+        └── Robot_2gdl_planar-Actuador.STL
 ```
+
+Los módulos `transforms.py`, `plotting.py` y `formatting.py` concentran las funciones matemáticas, gráficas y de presentación de matrices. `animation.py` contiene la clase `RobotScene`, mientras que `RobotRR.py` incluye funciones específicas para construir y actualizar la representación del manipulador RR.
 
 ---
 
@@ -138,7 +150,7 @@ En esta composición, el factor de la derecha actúa primero sobre los puntos re
 
 ## 5. Referencia de Funciones: Transformaciones y Orientación
 
-Estas funciones residen en `transforms.py`. Salvo que se indique lo contrario, se pueden importar desde `SimpleRobotics`. La función `christoffel` se importa desde `SimpleRobotics.transforms`, porque no está exportada en el nivel principal del paquete.
+Estas funciones residen en `transforms.py`. Se pueden importar desde `SimpleRobotics`; también es posible importar `christoffel` directamente desde `SimpleRobotics.transforms`.
 
 | Función | Descripción y Uso |
 | :--- | :--- |
@@ -155,6 +167,8 @@ Estas funciones residen en `transforms.py`. Salvo que se indique lo contrario, s
 | `RPY(H)` | Extrae una terna angular de una matriz **3x3** o **4x4**. La implementación devuelve los ángulos en el orden correspondiente a `Rz(phi) @ Ry(theta) @ Rx(psi)`: `(phi, theta, psi)`. |
 | `RPY_grados(H)` | Devuelve la misma terna de `RPY`, pero en grados y en el mismo orden `(phi, theta, psi)`. |
 | `DH(theta, d, a, alpha)` | Genera la matriz de transformación 4x4 correspondiente a los parámetros de Denavit-Hartenberg estándar para un eslabón. |
+| `DK_RR(theta1, theta2, L1, L2)` | Calcula la transformación homogénea del extremo de un manipulador planar RR de dos articulaciones rotacionales, a partir de los ángulos articulares y las longitudes de sus eslabones. Los ángulos se expresan en radianes. |
+| `IK_RR(x, y, L1, L2, codo)` | Calcula los ángulos articulares de un manipulador planar RR para una posición objetivo `(x, y)`. `codo` selecciona una de las dos ramas de solución: un valor verdadero utiliza la raíz negativa para `sin(theta2)` y uno falso utiliza la positiva. Los ángulos se devuelven en radianes. |
 | `H_inv(H)` | Calcula la inversa de una transformación homogénea rígida **4x4**. La parte de rotación debe ser ortonormal. |
 | `Rot_Q(e1, e2, e3, e4)` | Devuelve una matriz de rotación **3x3** a partir de los componentes del cuaternión en el orden `[e1, e2, e3, e4]`. La función no normaliza el cuaternión; usa componentes compatibles con la convención implementada por esta biblioteca. |
 | `Quaternions(H)` | Calcula los cuatro componentes del cuaternión a partir de la submatriz de rotación de `H` (admite **3x3** o **4x4**). La fórmula actual puede ser problemática cerca de rotaciones de 180 grados. |
@@ -248,7 +262,9 @@ mostrar_matriz(T, precision=2)
 
 ## 8. Representación Gráfica y Geometría 3D
 
-El módulo `plotting.py` contiene todas las funciones para visualizar al robot. Para utilizarlas adecuadamente, es necesario instanciar primero una figura de Matplotlib con soporte 3D y pasar el objeto `Axes3D` a las funciones mediante el argumento `ax`.
+El módulo `plotting.py` contiene las funciones para representar elementos geométricos y modelos robóticos mediante Matplotlib. Para utilizarlas adecuadamente, es necesario instanciar primero una figura de Matplotlib con soporte 3D y pasar el objeto `Axes3D` a las funciones mediante el argumento `ax`.
+
+La construcción de escenas con jerarquías de sistemas de referencia y mallas STL, así como la actualización de sus transformaciones y la visualización interactiva mediante PyVista, se realiza con la clase `RobotScene` del módulo `animation.py`. Esta clase complementa las funciones de dibujo de `plotting.py`; no las sustituye.
 
 ### 8.1 Preparación del entorno 3D
 
@@ -336,6 +352,146 @@ ax.set_box_aspect((1, 1, 1))
 plt.title("Ejemplo cinemático SimpleRobotics")
 plt.show()
 ```
+
+### 8.4 Construcción de escenas 3D y actualización de poses mediante PyVista
+
+El módulo `animation.py` contiene la clase `RobotScene`, que administra una escena tridimensional utilizando **Trimesh** para mantener la jerarquía de transformaciones y **PyVista** para representar las mallas mediante actores gráficos.
+
+Cada sistema de referencia (*frame*) puede depender de otro sistema de referencia. Las transformaciones se definen mediante matrices homogéneas **4x4** y, por defecto, representan la pose local de un elemento respecto a su padre. Cuando se actualiza un frame, las matrices globales de las mallas asociadas se sincronizan con sus actores de PyVista.
+
+La clase permite construir y mostrar escenas interactivas, modificar las poses de los elementos y consultar sus transformaciones globales. **La implementación actual no incorpora un temporizador, una línea de tiempo ni un controlador de reproducción automática**; la actualización de las poses debe solicitarse desde el código que utiliza la escena.
+
+**Importación:**
+
+```python
+from SimpleRobotics.animation import RobotScene
+```
+
+**Constructor:**
+
+```python
+scene = RobotScene(
+    window_size=(1000, 750),
+    background="white",
+    axes=True,
+    grid=True,
+    base_frame="world",
+)
+```
+
+| Parámetro | Descripción |
+| :--- | :--- |
+| `window_size` | Tamaño inicial de la ventana en píxeles, como `(ancho, alto)`. Por defecto `(1000, 750)`. |
+| `background` | Color de fondo aceptado por PyVista. Por defecto `white`. |
+| `axes` | Si es `True`, muestra el widget de ejes de PyVista. |
+| `grid` | Si es `True`, muestra la cuadrícula y los límites de referencia. |
+| `base_frame` | Nombre del sistema de referencia raíz. Por defecto `world`. |
+
+**Métodos principales de `RobotScene`:**
+
+| Método | Descripción |
+| :--- | :--- |
+| `add_frame(name, parent=None, transform=None)` | Agrega un sistema de referencia. Si `parent` se omite, utiliza el frame raíz. `transform` es la matriz homogénea local respecto al padre; si se omite, utiliza la identidad. |
+| `add_mesh(name, mesh, frame, transform=None, color="lightgray", opacity=1.0, smooth_shading=True)` | Asocia una malla `trimesh.Trimesh` a un frame y crea su actor en PyVista. La geometría se mantiene en coordenadas locales. `opacity` debe estar entre 0 y 1. Devuelve el actor creado. |
+| `set_transform(name, matrix)` | Actualiza la transformación local de un frame respecto a su padre. |
+| `update_transforms(transforms, space="local")` | Actualiza varios frames mediante un diccionario `{nombre_frame: matriz_4x4}`. Con `space="local"`, las matrices son relativas a sus padres; con `space="world"`, son relativas al frame raíz. Los actores se sincronizan después de actualizar las transformaciones. |
+| `get_world_transform(name)` | Devuelve una copia de la transformación global de un frame o una malla respecto al frame raíz. |
+| `render()` | Solicita a PyVista actualizar el renderizado de la escena. |
+| `show(**kwargs)` | Abre la ventana interactiva de PyVista. Admite los argumentos que acepte `Plotter.show`. |
+| `close()` | Cierra la ventana y libera los recursos de PyVista. La escena deja de poder modificarse. |
+
+La clase también expone las siguientes propiedades de consulta:
+
+- `frames`: tupla con los nombres de los sistemas de referencia registrados, incluido el frame raíz.
+- `meshes`: tupla con los nombres de las mallas agregadas.
+- `trimesh_scene`: escena Trimesh subyacente, para consultas avanzadas.
+- `plotter`: objeto `Plotter` de PyVista, para personalización avanzada.
+
+**Convenciones y validaciones:**
+
+- Las matrices de transformación deben ser numéricas, finitas y de dimensiones **4x4**.
+- La última fila debe ser `[0, 0, 0, 1]`.
+- `add_mesh` requiere un objeto `trimesh.Trimesh` con vértices tridimensionales y caras triangulares.
+- El frame indicado en `add_mesh` debe existir previamente.
+- Los nombres de frames y mallas deben ser cadenas no vacías y no pueden repetirse.
+- El frame raíz no puede modificarse mediante `set_transform` o `update_transforms`.
+
+**Ejemplo de construcción y actualización de una escena:**
+
+```python
+import numpy as np
+import trimesh
+from SimpleRobotics.animation import RobotScene
+
+# Cargar una malla triangular.
+mesh = trimesh.load("pieza.stl", file_type="stl", force="mesh")
+
+# Crear la escena y su jerarquía de referencia.
+scene = RobotScene()
+scene.add_frame("base")
+scene.add_frame("link1", parent="base")
+
+# Asociar la malla al frame del eslabón.
+scene.add_mesh("pieza", mesh, frame="link1", color="orange")
+
+# Actualizar la pose local del eslabón: traslación de 0.1 m en X.
+H = np.eye(4)
+H[0, 3] = 0.1
+scene.set_transform("link1", H)
+
+# Consultar la pose global de la malla y mostrar la escena.
+print(scene.get_world_transform("pieza"))
+scene.show()
+```
+
+### 8.5 Herramientas específicas para el manipulador RR
+
+El módulo `RobotRR.py` contiene funciones para cargar los modelos STL y construir una escena del manipulador planar de dos articulaciones rotacionales (RR). Las funciones principales también se importan desde `SimpleRobotics`.
+
+**`Renderiza_Robot_RR(theta1, theta2, carpeta_stl, mostrar=True, mostrar_link2=False, window_size=(1000, 750))`**
+
+Construye la escena tridimensional del robot RR a partir de sus archivos STL. Los ángulos `theta1` y `theta2` se expresan en radianes. `carpeta_stl` debe apuntar al directorio que contiene los siguientes archivos:
+
+- `Robot_2gdl_planar-Base.STL`
+- `Robot_2gdl_planar-Eslabon1.STL`
+- `Robot_2gdl_planar-Eslabon2.STL`
+- `Robot_2gdl_planar-Actuador.STL`
+
+El parámetro `mostrar` controla si se abre la ventana al construir la escena. `mostrar_link2` permite visualizar el STL del segundo eslabón; por defecto no se dibuja. La función devuelve una tupla `(scene, H02)`, donde `scene` es el objeto `RobotScene` y `H02` es la transformación homogénea del extremo del manipulador.
+
+**`actualizar_pose_robot_rr(scene, theta1, theta2)`**
+
+Actualiza las transformaciones de los elementos del robot RR en una escena previamente creada por `Renderiza_Robot_RR`. Recibe los dos ángulos articulares en radianes y devuelve la transformación homogénea `H02` correspondiente a la configuración solicitada.
+
+**Ejemplo de uso:**
+
+```python
+import numpy as np
+from pathlib import Path
+from SimpleRobotics import Renderiza_Robot_RR, actualizar_pose_robot_rr
+
+carpeta_stl = Path("ejemplos/STL_RR")
+
+# Construir la escena sin abrir todavía la ventana.
+scene, H02 = Renderiza_Robot_RR(
+    np.deg2rad(30),
+    np.deg2rad(45),
+    carpeta_stl,
+    mostrar=False,
+)
+
+# Cambiar la configuración del manipulador.
+H02 = actualizar_pose_robot_rr(
+    scene,
+    np.deg2rad(60),
+    np.deg2rad(-20),
+)
+
+# Mostrar la escena con la configuración actualizada.
+scene.show()
+```
+
+`Renderiza_Robot_RR` carga los cuatro archivos STL indicados, aunque `mostrar_link2=False` mantiene oculto el STL del segundo eslabón. Por ello, los cuatro archivos deben estar disponibles en el directorio indicado.
 
 ## 9. Ejemplo especializado: orientación RPY
 

@@ -8,6 +8,7 @@ from .transforms import rotx, roty, rotz, trans
 import trimesh
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from matplotlib.colors import LightSource
+import matplotlib.pyplot as plt
 
 def _obtener_axes_3d(ax: Any = None) -> Any:
     """Obtiene un eje 3D existente sin crear figuras ni ejes nuevos."""
@@ -1201,3 +1202,71 @@ def desplazamiento_z(K: Any, altura: float, offsetXY: Any, ld: str, off_label: A
 
         ax.text(posletra[0], posletra[1], posletra[2], f"${ld}$", fontsize=tf)
 
+
+def Dibujar_intermedio(Tk1: float, Tk2: float, Tki: Any, nfig: int) -> None:
+
+    Tk1 = np.asarray(Tk1, dtype=float)
+    Tk2 = np.asarray(Tk2, dtype=float)
+    Tki = np.asarray(Tki, dtype=float)
+
+    if Tk1.shape != (4, 4) and Tk2.shape != (4, 4) and Tki.shape != (4, 4):
+        raise ValueError("Tki debe ser una matriz de transformacion 4x4")
+
+    H00 = np.eye(4)
+    ini_fin = False
+
+    tf = 14
+    tt = 1
+
+    fig = plt.figure(nfig)
+    fig.clf()
+
+    ax = fig.add_subplot(111, projection="3d")
+
+    po0 = Sistema3D(H00, tt, "X_0", "y_0", "z_0", tf, ax=ax) 
+
+    if ini_fin:
+
+        pTk0 = Sistema3D(Tk1, tt, "x_i", "y_i", "z_i", tf, ax=ax)
+
+        pTkF = Sistema3D(Tk2, tt, "x_f", "y_f", "z_f", tf, ax=ax)
+
+    else: 
+
+        origen = np.array([[0], [0], [0], [1]])
+
+        pTk0 = Tk1 @ origen
+        pTkF = Tk2 @ origen
+
+    alto = tt * 0.6
+    radio = tt * 0.2
+
+    if ini_fin:
+
+        prisma_rectangular(Tk1, radio, radio, alto, "yellow", ax=ax)
+
+        prisma_rectangular(Tk2, radio, radio, alto, "yellow", ax=ax)
+
+    prisma_rectangular(Tki, radio, radio, alto, "yellow", ax=ax)
+
+    linea_punteada(pTk0, pTkF, ax=ax)
+
+    ax.set_xlim(-1, 5)
+    ax.set_ylim(-1, 3)
+    ax.set_zlim(-1, 5)
+
+    ax.set_box_aspect((6, 4, 6))
+    ax.grid(True)
+
+    ax.view_init(elev=50, azim=80)
+    ax.set_proj_type("persp")
+
+    ax.set_title("Interpolación")
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
+
+    fig.tight_layout()
+
+    return fig, ax
+    

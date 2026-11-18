@@ -1,9 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from SimpleRobotics import (
-    interpolacion_cubica,
-    interpolacion_cubica_vector,
-)
+from SimpleRobotics import (interpolacion_cubica, interpolacion_cubica_vector)
 
 # Parámetros idénticos a los de MATLAB
 qi = 0.0
@@ -35,17 +32,12 @@ qp_vector = np.asarray(qp_vector, dtype=float).reshape(-1)
 
 # 3. Comprobar que las funciones de Python coinciden
 print("--- Comparación entre funciones de Python ---")
-print(
-    "Máxima diferencia entre posiciones:",
-    np.max(np.abs(q_escalar - q_vector))
-)
+print("Máxima diferencia entre posiciones:", np.max(np.abs(q_escalar - q_vector)))
 
 # 4. Condiciones de frontera
 print("\n--- Condiciones de frontera ---")
-print(f"Posición inicial: calculada={q_escalar[0]:.10f}, "
-      f"esperada={qi:.10f}")
-print(f"Posición final:   calculada={q_escalar[-1]:.10f}, "
-      f"esperada={qf:.10f}")
+print(f"Posición inicial: calculada={q_escalar[0]:.10f}, " f"esperada={qi:.10f}")
+print(f"Posición final:   calculada={q_escalar[-1]:.10f}, " f"esperada={qf:.10f}")
 print(f"Velocidad inicial especificada: {qpi:.10f}")
 print(f"Velocidad final especificada:   {qpf:.10f}")
 
@@ -57,14 +49,7 @@ print(f"Velocidad vectorial final:   {qp_vector[-1]:.10f}")
 # 5. Exportar para comparar con MATLAB
 datos = np.column_stack((t, q_escalar, q_vector, qp_vector))
 
-np.savetxt(
-    "resultados_python.csv",
-    datos,
-    delimiter=",",
-    header="t,q_escalar,q_vector,qp_vector",
-    comments="",
-    fmt="%.12f",
-)
+np.savetxt("resultados_python.csv", datos, delimiter=",", header="t,q_escalar,q_vector,qp_vector", comments="", fmt="%.12f",)
 
 # 6. Gráficas
 fig, ax = plt.subplots(2, 1, figsize=(8, 6), sharex=True)

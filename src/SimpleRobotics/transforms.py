@@ -18,8 +18,7 @@ Convenciones:
 from __future__ import annotations
 
 import math
-from math import pi
-from math import sqrt
+from math import pi, atan2, sqrt, sin, cos
 from typing import Any
 import numpy as np
 import sympy as sp
@@ -233,6 +232,19 @@ def Rot_eje(k: Any, theta: Any) -> Array:
 ]
     return _sympy().Matrix(filas) if es_simbolica else np.array(filas, dtype=float)
 
+def Rot_eje_grados(k: Any, theta: Any,) -> Array:
+
+    if _usa_sympy(k[0], k[1], k[2], theta):
+
+        sp = _sympy()
+        theta_rad = sp.simplify(theta) * sp.pi / 180 
+
+    else:
+
+        theta_rad = np.deg2rad(theta)
+
+    return Rot_eje(k, theta_rad)
+
 def Eje_theta(H: Any) -> tuple[Any, Any]:
 
     es_simbolica = _usa_sympy(H)
@@ -307,12 +319,12 @@ def Eje_theta(H: Any) -> tuple[Any, Any]:
 
             ly = abs_ly
             lx = R[0, 1] / (2 * ly)
-            lz = R[0, 2] / (2 * ly)
+            lz = R[1, 2] / (2 * ly)
 
         else:
             lz = abs_lz
-            lx = R[0, 1] / (2 * lz)
-            ly = R[0, 2] / (2 * lz)
+            lx = R[0, 2] / (2 * lz)
+            ly = R[1, 2] / (2 * lz)
 
         Lambda = np.array([lx, ly, lz], dtype=float)
 
@@ -336,7 +348,7 @@ def Eje_theta(H: Any) -> tuple[Any, Any]:
 
 def Eje_theta_grados(H: Any) -> tuple[Any, Any]:
 
-    Lambda, theta =Eje_theta(H)
+    Lambda, theta = Eje_theta(H)
         
     return Lambda, rad2deg(theta)
 
@@ -494,8 +506,8 @@ def derivada_numerica(q: float, t:float) -> Any:
     if q.size != t.size:
         raise ValueError("q y t deben tener la misma cantidad de muestras.")
 
-    if t.size < 3:
-        raise ValueError("Se necesitan al menos tres muestras.")
+    if t.size < 2:
+        raise ValueError("Se necesitan al menos 2 muestras.")
 
 
     qp = t * 0
@@ -516,15 +528,15 @@ def derivada_numerica2(q: float, t:float) -> Any:
     if q.size != t.size:
         raise ValueError("q y t deben tener la misma cantidad de muestras.")
 
-    if t.size < 3:
-        raise ValueError("Se necesitan al menos tres muestras.")
+    if t.size < 2:
+        raise ValueError("Se necesitan al menos 2 muestras.")
 
 
     qp = t * 0
 
     for x in range(1, len(t) - 1):
 
-        qp[x] = (q[x] - q[x - 1]) / (t[x] - t[x - 1])
+        qp[x] = (q[x] - q[x-1]) / (t[x] - t[x-1])
 
     qp[-1] = qp[-2]
     qp[0] = qp[1]
@@ -539,8 +551,8 @@ def derivada_numerica_central(q: float, t:float) -> Any:
     if q.size != t.size:
         raise ValueError("q y t deben tener la misma cantidad de muestras.")
 
-    if t.size < 3:
-        raise ValueError("Se necesitan al menos tres muestras.")
+    if t.size < 2:
+        raise ValueError("Se necesitan al menos 2 muestras.")
 
 
     qp = t * 0
@@ -647,7 +659,11 @@ def interpolacion_lineal_vector(q_i: float, q_f: float, t: float) -> tuple[np.nd
 
         Q[x] = (q_f-q_i)*(t[x]-t_i)/T+q_i
 
-    Qp = derivada_numerica(Q, t)
+    if t.size == 2:
+        Qp = np.zeros_like(Q)
+
+    else:
+        Qp = derivada_numerica(Q, t)
 
     return Q, Qp
 
@@ -804,12 +820,38 @@ def christoffel(M: Any, q: Any, i: float, j: float, k: float) -> sp.Expr:
     
     return cijk
 
+
+def DK_RR(theta1: Any, theta2: Any, L1: float, L2: float) -> Any:
+
+    H1 = rotz(theta1) @ trans(L1, 0, 0)
+    H2 = rotz(theta2) @ trans(L2, 0, 0)
+
+    TK = H1 @ H2
+
+    return TK
+
+
+def IK_RR(x: float, y: float, L1: float, L2: float, codo: float) -> tuple[Any, Any]:
+
+    D = (x**2 + y**2 - L1**2 - L2**2) / (2 * L1 * L2)
+
+    if codo:
+
+        theta2 = atan2(-sqrt(1-D**2), D)
+
+    else:
+        theta2 = atan2(sqrt(1-D**2), D)
+
+    theta1=atan2(y,x)-atan2(L2*sin(theta2),L1+L2*cos(theta2))
+
+    return theta1, theta2
+
 __all__ = [
     "rotx3", "roty3", "rotz3",
     "rotx", "roty", "rotz", "trans",
     "deg2rad", "rad2deg",
     "Rot_RPY", "Rot_RPY_grados", "RPY", "RPY_grados",
-    "Rot_eje", "Eje_theta", "Eje_theta_grados",
+    "Rot_eje", "Rot_eje_grados", "Eje_theta", "Eje_theta_grados",
     "DH", "H_inv",
     "Rot_Q", "Quaternions", "Axis2Quaternions",
     "derivada_numerica", "derivada_numerica2", "derivada_numerica_central",
@@ -818,5 +860,6 @@ __all__ = [
     "interpolacion_tramos", "interpolacion_tramos_vector",
     "Energia_robot",
     "ejes",
-    "christoffel"
+    "christoffel",
+    "IK_RR", "DK_RR"
 ]

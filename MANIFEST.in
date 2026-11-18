@@ -1,0 +1,7 @@
+include README.md
+include Documentacion.md
+include license.txt
+
+recursive-include tests *.py *.json
+
+recursive-include ejemplos *.py *.ipynb *.STL *.stl
