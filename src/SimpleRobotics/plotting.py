@@ -1026,7 +1026,7 @@ def eslabon_STL(H: Any, solido: Any, RGBcolor: Any, *, ax: Any = None) -> None:
 
     colores = np.tile(RGBcolor, (caras.shape[0], 1))
 
-    superficie = Poly3DCollection(triangulos, facecolors=colores, edgecolors="none", linewidths=0, shade=True, lightsource=luz)
+    superficie = Poly3DCollection(triangulos, facecolors=colores, edgecolors=colores, linewidths=0, shade=True, lightsource=luz)
 
     ax.add_collection3d(superficie)
 
