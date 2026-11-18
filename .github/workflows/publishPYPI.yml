@@ -1,12 +1,16 @@
 name: Build and validate SimpleRobotics
 
-on: 
+on:
   push:
     branches:
       - main
+    tags:
+      - "v*"
+
   pull_request:
     branches:
       - main
+
   workflow_dispatch:
 
 permissions:
@@ -39,7 +43,7 @@ jobs:
         run: python -m build
 
       - name: Check distribution metadata
-        run: python -m twine check dist/*
+        run: python -m twine check --strict dist/*
 
       - name: Save distribution artifacts
         uses: actions/upload-artifact@v7
@@ -47,3 +51,26 @@ jobs:
           name: simplerobotics-dist
           path: dist/
           if-no-files-found: error
+
+  publish:
+    name: Publish distributions to PyPI
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: pypi
+      url: https://pypi.org/p/simplerobotics
+
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@v8
+        with:
+          name: simplerobotics-dist
+          path: dist/
+
+      - name: Publish distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
