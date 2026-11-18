@@ -29,6 +29,12 @@ jobs:
       - name: Install packaging tools
         run: python -m pip install --upgrade build twine
 
+      - name: Install project and development dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Run automated tests
+        run: python -m pytest -v
+
       - name: Build source distribution and wheel
         run: python -m build
 
